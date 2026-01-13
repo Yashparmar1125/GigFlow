@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
 import Bid from "../models/bid.model.js";
 import Gig from "../models/gigworker.model.js";
+import { getIo } from "../sockets/io.js";
 
 class BidService {
   static async createBid({ gigId, freelancerId, price, message }) {
@@ -26,6 +28,21 @@ class BidService {
     });
     
     await bid.populate("freelancerId", "name email");
+
+    const io = getIo();
+    if (io) {
+      const ownerRoom = `user:${gig.ownerId.toString()}`;
+      io.to(ownerRoom).emit("notification", {
+        type: "bid",
+        gigId: gig._id,
+        gigTitle: gig.title,
+        bidderId: bid.freelancerId._id,
+        bidderName: bid.freelancerId.name,
+        price,
+        message: `New bid received on ${gig.title} for $${price}`,
+      });
+    }
+
     return bid;
   }
 
@@ -71,45 +88,80 @@ class BidService {
   }
 
   static async hireBid(bidId, userId) {
-    const bid = await Bid.findById(bidId).populate("gigId");
-    
+    // 1. Find the bid + gig
+    const bid = await Bid.findById(bidId)
+      .populate("gigId")
+      .populate("freelancerId", "name email");
+  
     if (!bid) {
       throw { status: 404, message: "Bid not found" };
     }
-
+  
     const gig = bid.gigId;
-    
+  
     if (!gig) {
       throw { status: 404, message: "Gig not found" };
     }
-    
+  
+    // 2. Ownership check
     if (gig.ownerId.toString() !== userId.toString()) {
       throw { status: 403, message: "Only gig owner can hire freelancers" };
     }
-
+  
+    // 3. Concurrency guards
     if (gig.status !== "open") {
       throw { status: 400, message: "Gig is already assigned" };
     }
-
+  
     if (bid.status !== "pending") {
       throw { status: 400, message: "Bid is not in pending status" };
     }
-
+  
+    // 4. Reject all other bids
     await Bid.updateMany(
       { gigId: gig._id, _id: { $ne: bidId } },
       { status: "rejected" }
     );
-
+  
+    // 5. Hire selected bid
     bid.status = "hired";
     await bid.save();
-
+  
+    // 6. Assign gig
     gig.status = "assigned";
     await gig.save();
+  
+    // 7. Emit socket notification
+    const io = getIo();
+    if (io) {
+      const freelancerRoom = `user:${bid.freelancerId._id.toString()}`;
+      const ownerRoom = `user:${gig.ownerId.toString()}`;
 
-    await bid.populate("freelancerId", "name email");
-    
+      console.log("Emitting hire notification", {
+        freelancerRoom,
+        ownerRoom,
+        gigId: gig._id.toString(),
+        bidId: bid._id.toString(),
+      });
+
+      io.to(freelancerRoom).emit("notification", {
+        type: "hire",
+        gigId: gig._id,
+        gigTitle: gig.title,
+        message: `You have been hired for ${gig.title}!`,
+      });
+
+      io.to(ownerRoom).emit("notification", {
+        type: "hire",
+        gigId: gig._id,
+        gigTitle: gig.title,
+        message: `Freelancer hired for ${gig.title}`,
+      });
+    }
+  
     return bid;
   }
+  
 }
 
 export default BidService;
