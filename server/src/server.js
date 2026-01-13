@@ -1,7 +1,9 @@
 import "dotenv/config";
+import http from "http";
 import app from "./app.js";
 import connectDB from "./utils/connection.util.js";
 import config from "./config/config.js";
+import { initSocket } from "./sockets/io.js";
 
 const PORT = config.port || 5000;
 
@@ -15,8 +17,12 @@ const start = async () => {
     // Connect to database
     await connectDB();
 
-    // Start Express server
-    server = app.listen(PORT, "0.0.0.0", () => {
+    // Create HTTP server and attach Socket.io
+    const httpServer = http.createServer(app);
+    initSocket(httpServer);
+
+    // Start Express + Socket.io server
+    server = httpServer.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
       if (process.env.NODE_ENV === "production") {

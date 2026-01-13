@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from '../config/api.config';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
 
 interface DashboardStats {
   myGigs: number;
@@ -39,6 +40,7 @@ interface DashboardBid {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const { subscribe } = useSocket();
   const [stats, setStats] = useState<DashboardStats>({
     myGigs: 0,
     activeGigs: 0,
@@ -57,6 +59,20 @@ const Dashboard = () => {
     }
     fetchDashboardData();
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?._id) return;
+
+    const unsubscribe = subscribe('notification', (payload: { type: string; message?: string; gigTitle?: string }) => {
+      if (payload.type === 'hire') {
+        fetchDashboardData();
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [isAuthenticated, user?._id, subscribe]);
 
   const fetchDashboardData = async () => {
     try {
@@ -358,13 +374,12 @@ const Dashboard = () => {
                         </p>
                       </div>
                       <span
-                        className={`ml-3 px-2 py-1 rounded-full text-[10px] font-semibold ${
-                          gig.status === 'open'
-                            ? 'bg-green-100 text-green-700'
-                            : gig.status === 'assigned'
+                        className={`ml-3 px-2 py-1 rounded-full text-[10px] font-semibold ${gig.status === 'open'
+                          ? 'bg-green-100 text-green-700'
+                          : gig.status === 'assigned'
                             ? 'bg-blue-100 text-blue-700'
                             : 'bg-gray-100 text-gray-700'
-                        }`}
+                          }`}
                       >
                         {gig.status.toUpperCase()}
                       </span>
@@ -400,13 +415,12 @@ const Dashboard = () => {
                         </p>
                       </div>
                       <span
-                        className={`ml-3 px-2 py-1 rounded-full text-[10px] font-semibold ${
-                          bid.status === 'hired'
-                            ? 'bg-green-100 text-green-700'
-                            : bid.status === 'pending'
+                        className={`ml-3 px-2 py-1 rounded-full text-[10px] font-semibold ${bid.status === 'hired'
+                          ? 'bg-green-100 text-green-700'
+                          : bid.status === 'pending'
                             ? 'bg-yellow-100 text-yellow-700'
                             : 'bg-gray-100 text-gray-700'
-                        }`}
+                          }`}
                       >
                         {bid.status.toUpperCase()}
                       </span>
