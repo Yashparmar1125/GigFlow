@@ -195,29 +195,59 @@ export const SocketProvider = ({
     <SocketContext.Provider value={value}>
       {children}
 
-      {/* Toasts */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
+      {/* Toasts - Enhanced UI in Bottom Right */}
+      <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
         {toasts.map((t) => {
-          const color =
-            t.type === "hire"
-              ? "bg-green-50 border-green-200 text-green-800"
-              : "bg-blue-50 border-blue-200 text-blue-800";
-
+          const isHire = t.type === "hire";
           return (
             <div
               key={t.id}
-              className={`rounded-xl border px-4 py-3 shadow-sm ${color} max-w-sm flex justify-between`}
+              className={`
+                pointer-events-auto
+                w-80 p-4 rounded-lg shadow-2xl bg-white
+                border-l-4 ${isHire ? "border-green-500" : "border-blue-500"}
+                transform transition-all duration-300 ease-out
+                flex items-start gap-3
+                hover:translate-x-[-4px]
+              `}
+              role="alert"
             >
-              <span className="text-sm">{t.message}</span>
+              {/* Icon */}
+              <div className="flex-shrink-0 mt-0.5">
+                {isHire ? (
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-gray-900">
+                  {isHire ? "Congratulations!" : "New Update"}
+                </h3>
+                <p className="mt-1 text-sm text-gray-600 leading-snug">
+                  {t.message}
+                </p>
+              </div>
+
+              {/* Dismiss Button */}
               <button
-                className="ml-3 text-xs font-medium opacity-70 hover:opacity-100"
-                onClick={() =>
-                  setToasts((prev) =>
-                    prev.filter((x) => x.id !== t.id)
-                  )
-                }
+                onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
+                className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors -mr-1 -mt-1 p-1"
               >
-                Dismiss
+                <span className="sr-only">Close</span>
+                <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
               </button>
             </div>
           );

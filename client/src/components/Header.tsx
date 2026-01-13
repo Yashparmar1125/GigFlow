@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import UserAvatar from "./UserAvatar";
+import NotificationBell from "./NotificationBell";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -33,9 +34,8 @@ const Header = () => {
   };
 
   return (
-    <header className={`w-full bg-white border-b border-gray-200 relative z-50 transition-all duration-300 ${
-      isScrolled ? 'shadow-md sticky top-0' : ''
-    }`}>
+    <header className={`w-full bg-white border-b border-gray-200 relative z-50 transition-all duration-300 ${isScrolled ? 'shadow-md sticky top-0' : ''
+      }`}>
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-20 items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -57,7 +57,7 @@ const Header = () => {
 
             <Link to="/" className="flex-shrink-0">
               <img
-                src="/logo.png" 
+                src="/logo.png"
                 alt="GigFlow"
                 className="h-10 w-auto"
               />
@@ -70,10 +70,9 @@ const Header = () => {
                 key={link.name}
                 to={link.path}
                 className={({ isActive }) =>
-                  `text-sm font-medium transition-all duration-300 relative group ${
-                    isActive
-                      ? "text-purple-600 border-b-2 border-purple-600 pb-1"
-                      : "text-gray-700 hover:text-purple-600 border-b-2 border-transparent hover:border-purple-600 pb-1"
+                  `text-sm font-medium transition-all duration-300 relative group ${isActive
+                    ? "text-purple-600 border-b-2 border-purple-600 pb-1"
+                    : "text-gray-700 hover:text-purple-600 border-b-2 border-transparent hover:border-purple-600 pb-1"
                   }`
                 }
               >
@@ -101,6 +100,7 @@ const Header = () => {
                   </svg>
                   Post a Gig
                 </Link>
+                <NotificationBell />
                 <UserAvatar />
               </>
             ) : (
@@ -128,20 +128,19 @@ const Header = () => {
       {isMobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-lg py-4 px-6 flex flex-col gap-4 animate-fadeIn">
           {navLinks.map((link) => (
-             <NavLink
-             key={link.name}
-             to={link.path}
-             onClick={() => setIsMobileMenuOpen(false)}
-             className={({ isActive }) =>
-               `block py-2 text-base font-medium ${
-                 isActive
-                   ? "text-purple-600"
-                   : "text-gray-700 hover:text-purple-600"
-               }`
-             }
-           >
-             {link.name}
-           </NavLink>
+            <NavLink
+              key={link.name}
+              to={link.path}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `block py-2 text-base font-medium ${isActive
+                  ? "text-purple-600"
+                  : "text-gray-700 hover:text-purple-600"
+                }`
+              }
+            >
+              {link.name}
+            </NavLink>
           ))}
           {!isAuthenticated && (
             <>
