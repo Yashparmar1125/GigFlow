@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { SocketProvider } from './context/SocketContext'
+import { Analytics } from "@vercel/analytics/react"
 import AuthModal from './components/AuthModal'
 import HomePage from './pages/HomePage'
 import Dashboard from './pages/Dashboard'
@@ -16,6 +17,7 @@ const App = () => {
     <AuthProvider>
       <SocketProvider>
         <Router>
+          <Analytics />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/dashboard" element={<Dashboard />} />
