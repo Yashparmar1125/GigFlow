@@ -33,13 +33,13 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   connected: false,
-  subscribe: () => () => {},
-  emit: () => {},
+  subscribe: () => () => { },
+  emit: () => { },
   notifications: [],
   unreadCount: 0,
-  markAllRead: () => {},
-  removeNotification: () => {},
-  clearNotifications: () => {},
+  markAllRead: () => { },
+  removeNotification: () => { },
+  clearNotifications: () => { },
 });
 
 export const SocketProvider = ({
@@ -82,6 +82,7 @@ export const SocketProvider = ({
     }
 
     const socket = io(baseUrl, {
+      auth: { userId: user?._id },
       withCredentials: true, // 🔥 REQUIRED for cookies
       transports: ["websocket", "polling"],
     });
@@ -150,7 +151,7 @@ export const SocketProvider = ({
 
   const subscribe = (event: string, handler: (...args: any[]) => void) => {
     const socket = socketRef.current;
-    if (!socket) return () => {};
+    if (!socket) return () => { };
     socket.on(event, handler);
     return () => socket.off(event, handler);
   };
