@@ -6,3 +6,9 @@ export const authCookieOptions = {
   sameSite: "strict",
   maxAge: COOKIE_MAX_AGE,
 };
+
+export const clearAuthCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+};

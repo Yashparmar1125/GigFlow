@@ -1,6 +1,6 @@
 import { verifyToken } from "../utils/jwt.util.js";
 
-export const authMiddlewware = (req, res, next) => {
+export const authMiddleware = (req, res, next) => {
   try {
     const token = req.cookies?.token;
 

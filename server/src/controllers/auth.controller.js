@@ -1,5 +1,5 @@
 import AuthService from "../services/auth.service.js";
-import { authCookieOptions } from "../config/cookie.config.js";
+import { authCookieOptions, clearAuthCookieOptions } from "../config/cookie.config.js";
 
 class AuthController {
   // Register a new user  
@@ -78,17 +78,14 @@ class AuthController {
     // Logout user
     static async logout(req, res, next) {
         try {
-            res
-                .clearCookie("token", {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "strict",
-                })
-                .status(200)
-                .json({
-                    success: true,
-                    message: "User logged out successfully",
-                });
+          res
+          .clearCookie("token", clearAuthCookieOptions)
+          .status(200)
+          .json({
+            success: true,
+            message: "Logged out successfully",
+          });
+    
         } catch (err) {
             next(err);
         }

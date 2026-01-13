@@ -27,14 +27,17 @@ const BrowseGigs = () => {
 
   useEffect(() => {
     fetchGigs();
-  }, [statusFilter]);
+  }, [statusFilter, searchTerm]);
 
   const fetchGigs = async () => {
     try {
       setIsLoading(true);
-      const params: { status?: string } = {};
+      const params: { status?: string; search?: string } = {};
       if (statusFilter === 'open') {
         params.status = 'open';
+      }
+      if (searchTerm.trim()) {
+        params.search = searchTerm.trim();
       }
       const response = await axiosInstance.get(API_ENDPOINTS.GIGS.BASE, { params });
       setGigs(response.data.gigs || []);
@@ -45,10 +48,7 @@ const BrowseGigs = () => {
     }
   };
 
-  const filteredGigs = gigs.filter((gig) =>
-    gig.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    gig.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredGigs = gigs;
 
   return (
     <>
