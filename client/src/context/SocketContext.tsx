@@ -73,7 +73,9 @@ export const SocketProvider = ({
     const baseUrl =
       import.meta.env.VITE_SOCKET_URL ||
       import.meta.env.VITE_API_URL ||
-      (import.meta.env.DEV ? "http://localhost:5000" : "");
+      (import.meta.env.DEV ? "http://localhost:5000" : "https://gigflow.helloyashparmar.dev");
+
+    console.log("🔌 Socket connecting to:", baseUrl);
 
     if (!baseUrl) {
       throw new Error("Socket base URL is not defined");

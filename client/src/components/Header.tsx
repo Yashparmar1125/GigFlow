@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import UserAvatar from "./UserAvatar";
-import NotificationBell from "./NotificationBell";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -102,7 +101,6 @@ const Header = () => {
                   </svg>
                   Post a Gig
                 </Link>
-                <NotificationBell />
                 <UserAvatar />
               </>
             ) : (

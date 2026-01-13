@@ -3,8 +3,18 @@ import { Server } from "socket.io";
 let ioInstance;
 
 const getAllowedOrigins = () => {
+  const defaultOrigins = [
+    "https://gigflow.yashparmar.in",
+    "https://gigflowapp.vercel.app",
+    "http://gigflow.yashparmar.in", // Just in case
+    "http://gigflowapp.vercel.app",
+  ];
+
   if (process.env.ALLOWED_ORIGINS) {
-    return process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim());
+    return [
+      ...process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim()),
+      ...defaultOrigins,
+    ];
   }
 
   if (process.env.NODE_ENV !== "production") {
@@ -13,10 +23,11 @@ const getAllowedOrigins = () => {
       "http://127.0.0.1:5173",
       "http://localhost:3000",
       "http://localhost:4173",
+      ...defaultOrigins,
     ];
   }
 
-  return [];
+  return defaultOrigins;
 };
 
 export const initSocket = (httpServer) => {
@@ -25,6 +36,7 @@ export const initSocket = (httpServer) => {
   }
 
   const allowedOrigins = getAllowedOrigins();
+  console.log("Socket allowed origins:", allowedOrigins);
 
   ioInstance = new Server(httpServer, {
     cors: {
@@ -32,6 +44,7 @@ export const initSocket = (httpServer) => {
         if (!origin || allowedOrigins.includes(origin)) {
           return callback(null, true);
         }
+        console.error(`Socket CORS blocked origin: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       },
       credentials: true,

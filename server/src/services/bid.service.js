@@ -28,21 +28,6 @@ class BidService {
     });
     
     await bid.populate("freelancerId", "name email");
-
-    const io = getIo();
-    if (io) {
-      const ownerRoom = `user:${gig.ownerId.toString()}`;
-      io.to(ownerRoom).emit("notification", {
-        type: "bid",
-        gigId: gig._id,
-        gigTitle: gig.title,
-        bidderId: bid.freelancerId._id,
-        bidderName: bid.freelancerId.name,
-        price,
-        message: `New bid received on ${gig.title} for $${price}`,
-      });
-    }
-
     return bid;
   }
 
@@ -134,28 +119,11 @@ class BidService {
     // 7. Emit socket notification
     const io = getIo();
     if (io) {
-      const freelancerRoom = `user:${bid.freelancerId._id.toString()}`;
-      const ownerRoom = `user:${gig.ownerId.toString()}`;
-
-      console.log("Emitting hire notification", {
-        freelancerRoom,
-        ownerRoom,
-        gigId: gig._id.toString(),
-        bidId: bid._id.toString(),
-      });
-
-      io.to(freelancerRoom).emit("notification", {
+      io.to(`user:${bid.freelancerId._id.toString()}`).emit("notification", {
         type: "hire",
         gigId: gig._id,
         gigTitle: gig.title,
         message: `You have been hired for ${gig.title}!`,
-      });
-
-      io.to(ownerRoom).emit("notification", {
-        type: "hire",
-        gigId: gig._id,
-        gigTitle: gig.title,
-        message: `Freelancer hired for ${gig.title}`,
       });
     }
   
