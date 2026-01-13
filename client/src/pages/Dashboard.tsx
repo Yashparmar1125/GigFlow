@@ -14,6 +14,28 @@ interface DashboardStats {
   hiredBids: number;
 }
 
+interface DashboardGig {
+  _id: string;
+  title: string;
+  budget: number;
+  status: string;
+  createdAt: string;
+  bidCount?: number;
+}
+
+interface DashboardBid {
+  _id: string;
+  price: number;
+  status: 'pending' | 'hired' | 'rejected';
+  createdAt: string;
+  gig: {
+    _id: string;
+    title: string;
+    budget: number;
+    status: string;
+  };
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
@@ -25,6 +47,8 @@ const Dashboard = () => {
     hiredBids: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [recentGigs, setRecentGigs] = useState<DashboardGig[]>([]);
+  const [recentBids, setRecentBids] = useState<DashboardBid[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -52,6 +76,9 @@ const Dashboard = () => {
         pendingBids: bids.filter((bid: any) => bid.status === 'pending').length,
         hiredBids: bids.filter((bid: any) => bid.status === 'hired').length,
       });
+
+      setRecentGigs(gigs.slice(0, 3));
+      setRecentBids(bids.slice(0, 3));
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -303,6 +330,91 @@ const Dashboard = () => {
                 </svg>
               </div>
             </Link>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Recent Gigs</h2>
+                <Link to="/my-gigs" className="text-sm text-purple-600 hover:text-purple-700">
+                  View all
+                </Link>
+              </div>
+              {recentGigs.length === 0 ? (
+                <p className="text-gray-500 text-sm">You haven't posted any gigs yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentGigs.map((gig) => (
+                    <Link
+                      key={gig._id}
+                      to={`/gig/${gig._id}`}
+                      className="flex items-center justify-between px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{gig.title}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(gig.createdAt).toLocaleDateString()} · ${gig.budget}{' '}
+                          {gig.bidCount ? `· ${gig.bidCount} bids` : ''}
+                        </p>
+                      </div>
+                      <span
+                        className={`ml-3 px-2 py-1 rounded-full text-[10px] font-semibold ${
+                          gig.status === 'open'
+                            ? 'bg-green-100 text-green-700'
+                            : gig.status === 'assigned'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {gig.status.toUpperCase()}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Recent Bids</h2>
+                <Link to="/my-bids" className="text-sm text-purple-600 hover:text-purple-700">
+                  View all
+                </Link>
+              </div>
+              {recentBids.length === 0 ? (
+                <p className="text-gray-500 text-sm">You haven't placed any bids yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentBids.map((bid) => (
+                    <Link
+                      key={bid._id}
+                      to={`/gig/${bid.gig._id}`}
+                      className="flex items-center justify-between px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {bid.gig.title}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          You bid ${bid.price} · {new Date(bid.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <span
+                        className={`ml-3 px-2 py-1 rounded-full text-[10px] font-semibold ${
+                          bid.status === 'hired'
+                            ? 'bg-green-100 text-green-700'
+                            : bid.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {bid.status.toUpperCase()}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

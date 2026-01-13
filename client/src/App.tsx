@@ -8,6 +8,7 @@ import PostGig from './pages/PostGig'
 import GigDetails from './pages/GigDetails'
 import MyGigs from './pages/MyGigs'
 import MyBids from './pages/MyBids'
+import EditGig from './pages/EditGig'
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
           <Route path="/browse-gigs" element={<BrowseGigs />} />
           <Route path="/post-gig" element={<PostGig />} />
           <Route path="/gig/:id" element={<GigDetails />} />
+          <Route path="/gig/:id/edit" element={<EditGig />} />
           <Route path="/my-gigs" element={<MyGigs />} />
           <Route path="/my-bids" element={<MyBids />} />
         </Routes>

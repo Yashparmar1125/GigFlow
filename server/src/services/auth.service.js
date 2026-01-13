@@ -76,6 +76,8 @@ class AuthService {
       token,
     };
   }
+
+  
 }
 
 export default AuthService;

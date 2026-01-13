@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../config/axios.config';
 import { API_ENDPOINTS } from '../config/api.config';
 import Header from '../components/Header';
@@ -35,6 +35,7 @@ interface Bid {
 
 const GigDetails = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { isAuthenticated, user, openAuthModal, setAuthMode } = useAuth();
   const [gig, setGig] = useState<Gig | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
@@ -119,6 +120,22 @@ const GigDetails = () => {
     }
   };
 
+  const handleDeleteGig = async () => {
+    if (!gig || !isOwner) return;
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this gig? This action cannot be undone and all bids will be lost.'
+    );
+    if (!confirmed) return;
+
+    try {
+      setError('');
+      await axiosInstance.delete(API_ENDPOINTS.GIGS.BY_ID(gig._id));
+      navigate('/my-gigs');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to delete gig');
+    }
+  };
+
   const isOwner = gig && user && gig.createdBy._id === user._id;
   const canBid = isAuthenticated && gig && !isOwner && gig.status === 'open';
 
@@ -180,9 +197,29 @@ const GigDetails = () => {
                   <span>{new Date(gig.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-3xl font-bold text-orange-500">${gig.budget}</p>
-                <p className="text-sm text-gray-500">Budget</p>
+              <div className="flex flex-col items-end gap-3">
+                <div className="text-right">
+                  <p className="text-3xl font-bold text-orange-500">${gig.budget}</p>
+                  <p className="text-sm text-gray-500">Budget</p>
+                </div>
+                {isOwner && (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/gig/${gig._id}/edit`)}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      Edit gig
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeleteGig}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Delete gig
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

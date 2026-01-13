@@ -84,45 +84,62 @@ const MyGigs = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {gigs.map((gig) => (
-                <Link
+                <div
                   key={gig._id}
-                  to={`/gig/${gig._id}`}
-                  className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                  className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        gig.status === 'open'
-                          ? 'bg-green-100 text-green-700'
-                          : gig.status === 'assigned'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {gig.status.toUpperCase()}
-                    </span>
-                    {gig.bidCount !== undefined && (
-                      <span className="text-sm text-gray-500">{gig.bidCount} bids</span>
-                    )}
+                  <div>
+                    <div className="flex items-start justify-between mb-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          gig.status === 'open'
+                            ? 'bg-green-100 text-green-700'
+                            : gig.status === 'assigned'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {gig.status.toUpperCase()}
+                      </span>
+                      {gig.bidCount !== undefined && (
+                        <span className="text-sm text-gray-500">{gig.bidCount} bids</span>
+                      )}
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors line-clamp-1">
+                      {gig.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">{gig.description}</p>
                   </div>
 
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
-                    {gig.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{gig.description}</p>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div>
-                      <p className="text-2xl font-bold text-orange-500">${gig.budget}</p>
-                      <p className="text-xs text-gray-500">Budget</p>
+                  <div>
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100 mb-4">
+                      <div>
+                        <p className="text-2xl font-bold text-orange-500">${gig.budget}</p>
+                        <p className="text-xs text-gray-500">Budget</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">
+                          {new Date(gig.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">
-                        {new Date(gig.createdAt).toLocaleDateString()}
-                      </p>
+                    <div className="flex items-center justify-between gap-2">
+                      <Link
+                        to={`/gig/${gig._id}`}
+                        className="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        to={`/gig/${gig._id}/edit`}
+                        className="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-xl border border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors"
+                      >
+                        Edit
+                      </Link>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
